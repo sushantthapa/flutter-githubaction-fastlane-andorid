@@ -9,45 +9,50 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       # Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
+        id: checkout
 
-            # Set up Java 17
+      # Set up Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
-
+        id: java-setup
 
       # Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.27.1
+        id: flutter-setup
 
       # Install dependencies
-      - name: Install dependencies
+      - name: Install Flutter dependencies
         run: flutter pub get
+        id: flutter-install-dependencies
 
-      # Run tests
-      #- name: Run tests
-       # run: flutter test
+      # Run tests (optional, can be uncommented)
+      # - name: Run tests
+      #   run: flutter test
+      #   id: flutter-tests
 
       # Build APK using Flutter
       - name: Build APK
         run: flutter build apk --release
+        id: build-apk
 
-      # Setup Ruby and Bundler
+      # Setup Ruby and Bundler for Fastlane
       - name: Setup Ruby and Bundler
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+        id: ruby-setup
 
-      # Run Fastlane
+      # Run Fastlane for release
       - name: Run Fastlane
         run: |
           cd android
@@ -56,6 +61,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        id: fastlane
 
       # Upload APK to MinIO
       - name: Upload APK to MinIO
@@ -72,3 +78,4 @@ jobs:
 
           # Upload the APK
           ./mc cp build/app/outputs/flutter-apk/app-release.apk myminio/$MINIO_BUCKET/app-release.apk
+        id: minio-upload
