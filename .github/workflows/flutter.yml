@@ -42,7 +42,7 @@ jobs:
 
       # Build APK using Flutter
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --stacktrace
         id: build-apk
 
       # Setup Ruby and Bundler for Fastlane
